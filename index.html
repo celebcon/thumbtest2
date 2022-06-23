@@ -1,21 +1,402 @@
-<!DOCTYPE html>
 <html>
-<body>
 
-<p>Image to use:</p>
-<img id="scream" width="220" height="277" src="thumb.png" alt="The Scream">
+<style>
+p.a {
+  white-space: pre;
+  color: white;
+}
+</style>
 
-Your browser does not support the HTML5 canvas tag.
+<body style="background-color:black;">
+
+<canvas id="myCanvas" onload = 'move()' onclick = "clickfunc()" width="800" height="400" style=" padding-left: 0;
+    padding-right: 0;
+	
+    margin-left: auto;
+    margin-right: auto;
+	margin-top: 0px;
+    display: block;border:3px solid white;">
 </canvas>
 
+</body>
+
+
 <script>
-window.onload = function() {
-  var c = document.getElementById("myCanvas");
-  var ctx = c.getContext("2d");
-  var img = document.getElementById("scream");
-  ctx.drawImage(img, 10, 10);
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+ctx.font = "16px Arial";
+
+var canvasX = 0; 
+var canvasY = 0; 
+canvas.addEventListener("mousemove", function(e) { 
+    var cRect = canvas.getBoundingClientRect();              // Gets the CSS positions along with width/height
+    canvasX = Math.round(e.clientX - cRect.left);        // Subtract the 'left' of the canvas from the X/Y
+    canvasY = Math.round(e.clientY - cRect.top);         // positions to get make (0,0) the top left of the    
+});
+
+
+function sound(src) {
+ this.sound = document.createElement("audio");
+this.sound.src = src;
+this.sound.setAttribute("preload", "auto");
+this.sound.setAttribute("controls", "none");
+this.sound.style.display = "none";
+document.body.appendChild(this.sound);
+this.play = function(){
+this.sound.play();
 }
+this.stop = function(){
+this.sound.pause();
+}   
+}
+
+//backtrack = new sound("sounds/backtrack.mp3");
+
+var button = function(x,y,w,c1,c2,c3,n,s,m,show) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = this.w*4/3;
+	this.c1 = c1 + Math.round(Math.random() * 3);
+	this.c2 = c2 + Math.round(Math.random() * 2);
+	this.c3 = c3 + Math.round(Math.random() * 1);
+	this.n = n;
+	this.s = s; 
+	this.m = m;
+	this.verified = false;
+	this.checking = false;
+	this.purchased = false;
+	this.show = show;
+	
+};
+
+button.prototype.draw = function() {
+
+    if (this.s == scene && this.show == "on"){
+		
+		
+    ctx.shadowBlur = 1;
+    ctx.shadowOffsetX = 0.5;
+    ctx.shadowOffsetY = 0.5;
+	
+	ctx.drawImage(backboard,-shiftX - 319 + this.x,-shiftY - 60 + this.y,800,400);
+
+     ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+	var myImage = new Image(100, 200);
+    myImage.src = 'celebs/' + this.n + '.png';
+    ctx.drawImage(myImage,this.x - shiftX,this.y - shiftY,this.w,this.h);
+	
+	ctx.drawImage(wrapper,-shiftX - 319 + this.x,-shiftY - 60 + this.y,800,400);
+	
+	 ctx.shadowBlur = 1;
+    ctx.shadowOffsetX = 0.5;
+    ctx.shadowOffsetY = 0.5;
+	
+	
+	ctx.font = "50px Times New Roman";
+    ctx.fillStyle = "white";
+	
+	ctx.fillText("X " + String(this.c1),this.x + 365 - shiftX,this.y + 60 - shiftY);
+	ctx.fillText("X " + String(this.c2),this.x + 365 - shiftX,this.y + 170 - shiftY);
+	ctx.fillText("X " + String(this.c3),this.x + 365 - shiftX,this.y + 280 - shiftY);
+	
+	ctx.font = "25px Times New Roman";
+    ctx.fillStyle = "black";
+	ctx.fillText(this.n,this.x - 5 - shiftX,this.y + 290 - shiftY);
+
+	}
+	
+   if (this.purchased == true){ctx.strokeStyle = "green"; if (scene == 1){ctx.drawImage(check,this.x - shiftX,this.y - shiftY,this.w,this.h);}}
+
+	
+	if (this.checking == true && this.purchased == false){
+		this.verified = true;
+		if (this.s != scene){this.verified = false;}
+		if (p1 - this.c1 < 0){this.verified = false; if (scene == 1){ctx.drawImage(cross,this.x - shiftX,this.y - shiftY,this.w,this.h);}}
+		if (p2 - this.c2 < 0){this.verified = false; if (scene ==1){ctx.drawImage(cross,this.x - shiftX,this.y - shiftY,this.w,this.h);}}
+		if (p3 - this.c3 < 0){this.verified = false; if (scene == 1){ctx.drawImage(cross,this.x - shiftX,this.y - shiftY,this.w,this.h);}}
+	}
+	
+	if (this.verified == true){
+	    if (this.purchased == false){
+		p1 = p1 - this.c1; 
+		p2 = p2 - this.c2; 
+		p3 = p3 - this.c3; 
+		printout += this.n + this.m + "\n\n";
+        purchasedArray.push(this.n);
+		}
+		this.purchased = true;
+	}
+};
+
+var buttonArray = [];
+
+buttonArray.push(new button(319,60,200,3,2,1,"Helga Lovekaty",1, "","on"));
+buttonArray.push(new button(319,60 + 400,200,2,2,1,"Lacey Chabert",1, "","on"));
+buttonArray.push(new button(319,60 + 400*2,200,3,2,1,"Cara Delevingne",1, "","on"));
+buttonArray.push(new button(319,60 + 400*3,200,3,2,1,"Deborah Ann Woll",1, "","on"));
+buttonArray.push(new button(319,60 + 400*4,200,2,1,1,"Bonnie Wright",1, "","on"));
+buttonArray.push(new button(319,60 + 400*5,200,5,4,3,"Billie Eilish",1, "","on"));
+buttonArray.push(new button(319,60 + 400*6,200,4,3,2,"Alexis Ren",1, "","on"));
+buttonArray.push(new button(319,60 + 400*7,200,3,2,1,"Ashley Benson",1, "","on"));
+buttonArray.push(new button(319,60 + 400*8,200,4,2,1,"Caylee Cowan",1, "","on"));
+buttonArray.push(new button(319,60 + 400*9,200,3,3,2,"Zoe Kravitz",1, "","on"));
+buttonArray.push(new button(319,60 + 400*10,200,5,4,3,"Yanet Garcia",1, "","on"));
+buttonArray.push(new button(319,60 + 400*11,200,2,1,1,"Drew Barrymore",1, "","on"));
+buttonArray.push(new button(319,60 + 400*12,200,2,1,1,"Willa Fitzgerald",1, "","on"));
+buttonArray.push(new button(319,60 + 400*13,200,3,2,1,"Nikki Bella",1, "","on"));
+buttonArray.push(new button(319,60 + 400*14,200,4,3,2,"Madison Beer",1, "","on"));
+buttonArray.push(new button(319,60 + 400*15,200,3,2,1,"Penelope Cruz",1, "","on"));
+buttonArray.push(new button(319,60 + 400*16,200,5,4,3,"Salma Hayek",1, "","on"));
+buttonArray.push(new button(319,60 + 400*17,200,2,2,1,"Anya Chalotra",1, "","on"));
+buttonArray.push(new button(319,60 + 400*18,200,2,1,1,"Tina Fey",1, "","on"));
+buttonArray.push(new button(319,60 + 400*19,200,3,2,1,"Pom Klementieff",1, "","on"));
+buttonArray.push(new button(319,60 + 400*20,200,2,1,1,"Megan Thee Stallion",1, "","on"));
+buttonArray.push(new button(319,60 + 400*21,200,3,2,1,"Winona Ryder",1, "","on"));
+buttonArray.push(new button(319,60 + 400*22,200,2,2,1,"Naomi Watts",1, "","on"));
+buttonArray.push(new button(319,60 + 400*23,200,4,3,3,"Saoirse Ronan",1, "","on"));
+buttonArray.push(new button(319,60 + 400*24,200,2,1,1,"Gillian Jacobs",1, "","on"));
+buttonArray.push(new button(319,60 + 400*25,200,3,2,1,"Cobie Smulders",1, "","on"));
+buttonArray.push(new button(319,60 + 400*26,200,5,4,3,"Daisy Ridley",1, "","on"));
+buttonArray.push(new button(319,60 + 400*27,200,4,3,2,"Emily Blunt",1, "","on"));
+buttonArray.push(new button(319,60 + 400*28,200,4,3,2,"Demi Lovato",1, "","on"));
+buttonArray.push(new button(319,60 + 400*29,200,2,1,1,"Georgia Hirst",1, "","on"));
+buttonArray.push(new button(319,60 + 400*30,200,2,1,1,"Genevieve Morton",1, "","on"));
+buttonArray.push(new button(319,60 + 400*31,200,4,3,2,"Joey King",1, "","on"));
+buttonArray.push(new button(319,60 + 400*32,200,2,1,1,"Camilla Luddington",1, "","on"));
+buttonArray.push(new button(319,60 + 400*33,200,2,1,1,"Maude Apatow",1, "","on"));
+buttonArray.push(new button(319,60 + 400*34,200,3,2,1,"Bella Hadid",1, "","on"));
+buttonArray.push(new button(319,60 + 400*35,200,2,2,1,"Halston Sage",1, "","on"));
+buttonArray.push(new button(319,60 + 400*36,200,2,2,1,"Lily Collins",1, "","on"));
+buttonArray.push(new button(319,60 + 400*37,200,4,3,2,"Vanessa Kirby",1, "","on"));
+buttonArray.push(new button(319,60 + 400*38,200,3,2,1,"Nina Agdal",1, "","on"));
+buttonArray.push(new button(319,60 + 400*39,200,2,1,1,"Yoona Im",1, "","on"));
+
+
+function clickfunc(){
+
+for(var i = 0; i < buttonArray.length ; i++) {
+			if (canvasX > buttonArray[i].x - shiftX && canvasX < buttonArray[i].x + buttonArray[i].w - shiftX){
+				if (canvasY > buttonArray[i].y - shiftY && canvasY < buttonArray[i].y + buttonArray[i].h - shiftY){
+					if (scene == buttonArray[i].s){buttonArray[i].checking = true;}
+				}
+				
+			}
+			
+}
+
+if (shiftY - delshiftY < 100 && shiftY - delshiftY > -100){
+if (scene == 1 && canvasX > 190 && canvasX < 270 && canvasY > 90 && canvasY < 200 && shiftY > 100){delshiftY-=400; acc = 40;}
+if (scene == 1 && canvasX > 190 && canvasX < 270 && canvasY > 240 && canvasY < 330){delshiftY+=400; acc = 40;}
+}
+
+if (scene == -18 && canvasX > 220 && canvasX < 590 && canvasY > 315 && canvasY < 390){scene = 1; delshiftY+=400; acc = 40;}
+
+if (scene == -19 && canvasX > 220 && canvasX < 590 && canvasY > 315 && canvasY < 390){scene = -18; delshiftY+=400; acc = 40;}
+
+if (scene == -20 && canvasX > 220 && canvasX < 590 && canvasY > 250 && canvasY < 340){scene = -19; delshiftY+=400; acc = 40;}
+
+
+if (scene == 3 && canvasX > 180 && canvasX < 630 && canvasY > 320){scene = 4; copytoclipboard(printout);}
+
+if (scene == 3 && canvasX > 160 && canvasX < 310 && canvasY > 70 && canvasY < 310 && p1 > 1 && slipPotion == 0){p1 = p1 - 2; slipPotion = 1; printout+="\n\nSlippery Potion"}
+
+if (scene == 3 && canvasX > 320 && canvasX < 470 && canvasY > 70 && canvasY < 310 && p3 > 0 && sensPotion == 0){p3 = p3 - 1; sensPotion = 1;  printout+="\n\nSensitive Potion"}
+
+if (scene == 3 && canvasX > 480 && canvasX < 630 && canvasY > 70 && canvasY < 310 && p2 > 0 && refreshPotion == 0){p2 = p2 - 1; refreshPotion = 1;  printout+="\n\nRefreshing Potion"}
+
+if (scene == 3 && canvasX > 640 && canvasX < 800 && canvasY > 70 && canvasY < 310 && p2 > 1 && blosPotion == 0){p2 = p2 - 2; blosPotion = 1;  printout+="\n\nBlossom Potion"}
+
+if (scene == 2 && canvasX > 200 && canvasY > 320 && canvasX < 650 && canvasY < 400){scene = 3;}
+
+if (warning == 1 && scene == 1 && canvasX > 0 && canvasY > 308 && canvasX < 190 && canvasY < 400){scene = 2;}
+
+}//End clickfunc
+
+var myVar = setInterval(move, 20);
+
+var scene = -20; 
+
+var points = 10;
+
+var shiftX = 0;
+
+var shiftY = -1200;
+
+var delshiftY = -1200;
+
+var acc = 0;
+
+var slipPotion = 0;
+
+var sensPotion = 0;
+
+var refreshPotion = 0;
+
+var blosPotion = 0;
+
+var printout = "";
+
+var p1 = 40;
+var p2 = 30;
+var p3 = 20; 
+
+var purchasedArray = [];
+var warning = 0;
+
+var animX = 0;
+
+function move() {
+
+//BG
+ctx.fillStyle = "black";
+ctx.fillRect(0,0, 800, 400);
+
+if (scene == -20 || scene == -19 || scene == -18){
+ctx.drawImage(page1,0,-1200 - shiftY,800,400);
+ctx.drawImage(page2,0,-800 - shiftY,800,400);
+ctx.drawImage(page3,0,-400 - shiftY,800,400);
+
+if (shiftY < delshiftY){shiftY += acc; acc = acc - 1;}
+if (shiftY > delshiftY){shiftY -= acc; acc = acc - 1;}
+}
+
+if (scene == 1){
+ctx.drawImage(sky,0,0,800,400);
+ctx.drawImage(playertab,0,0,800,400);
+ctx.drawImage(page3,0,-400 - shiftY,800,400);
+ctx.drawImage(arrows,0,20,800,400);
+ctx.drawImage(info,0,0,800,400);
+
+
+if (p1 < 10 || p2 < 5 || p3 < 2){warning = 1;}
+
+if (warning == 1){ctx.drawImage(out,0,0,800,400);}
+
+if (shiftY <  200){ctx.drawImage(arrowstop,0,20,800,400);}
+if (shiftY >  15400){ctx.drawImage(arrowsbottom,0,20,800,400);}
+
+
+
+if (shiftY > 15600){shiftY = 15600;}
+if (delshiftY > 15600){delshiftY = 15600;}
+
+ctx.font = "30px Times New Roman";
+ctx.fillStyle = "white";
+ctx.fillText("X " + String(p1),90,105);
+ctx.fillText("X " + String(p2),90,185);
+ctx.fillText("X " + String(p3),90,262);
+
+if (shiftY < delshiftY){shiftY += acc; acc = acc - 1;}
+if (shiftY > delshiftY){shiftY -= acc; acc = acc - 1;}
+
+
+}//END SCENE 1
+
+if (scene == 2){
+ctx.drawImage(page4,0,0,800,400);
+
+for(var i = 0; i < purchasedArray.length ; i++) {		
+    myImage = new Image(100, 200);
+    myImage.src = 'celebs/' + purchasedArray[i] + '.png';
+    ctx.drawImage(myImage,i*100 + 30 - animX,167,100,133);
+	ctx.drawImage(myImage,i*100 + 30 - animX + 100*purchasedArray.length,167,100,133);
+	animX+=0.2;
+	if (animX > 100*purchasedArray.length){animX = 0;}
+}
+
+
+}//END SCENE 2
+
+if (scene == 3){
+ctx.drawImage(page5,0,0,800,400);
+
+ctx.font = "30px Times New Roman";
+ctx.fillStyle = "white";
+ctx.drawImage(playertab,-10,45,800,400);
+ctx.fillText("X " + String(p1),90 - 10,105 + 45);
+ctx.fillText("X " + String(p2),90 - 10,185 + 45);
+ctx.fillText("X " + String(p3),90 - 10,262 + 45);
+
+if (slipPotion == 1){ctx.drawImage(check,200,80,100,100);}
+if (sensPotion == 1){ctx.drawImage(check,350,80,100,100);}
+if (refreshPotion == 1){ctx.drawImage(check,500,80,100,100);}
+if (blosPotion == 1){ctx.drawImage(check,650,80,100,100);}
+
+}
+
+if (scene == 4){
+ctx.drawImage(page6,0,0,800,400);
+}
+
+//Prototypes
+for(var i = 0; i < buttonArray.length ; i++) {
+        buttonArray[i].draw();
+}
+ctx.shadowColor = "black";
+ctx.shadowBlur = 0;
+ctx.shadowOffsetX = 0;
+ctx.shadowOffsetY = 0;
+
+ctx.fillStyle = "gray";
+ctx.fillRect(0,400, 800, 400);
+
+
+ctx.font = "20px Arial";
+ctx.fillStyle = "white";
+ctx.fillText("X: " + canvasX,4,420);
+ctx.fillText("Y: " + canvasY,3,440);
+
+
+ctx.fillText("shiftX: " + shiftX,220,420);
+ctx.fillText("shiftY: " + shiftY,220,440);
+
+
+ctx.fillText("Scene: " + scene,80,420);
+ctx.fillText("Points: " + points,80,440);
+
+document.getElementById("demo").innerHTML = printout; 
+
+
+}//End of FUNCTION
+
+
+function copytoclipboard(text) {
+   const elem = document.createElement('textarea');
+   elem.value = text;
+   document.body.appendChild(elem);
+   elem.select();
+   document.execCommand('copy');
+   document.body.removeChild(elem);
+}
+
 </script>
 
-</body>
-</html>
+<p class="a" id = "demo" value = ""></p>
+
+<img id="check"  style="display:none; visibility:hidden;" src="gui/check.png" alt="">
+<img id="backboard"  style="display:none; visibility:hidden;" src="gui/backboard.png" alt="">
+<img id="wrapper"  style="display:none; visibility:hidden;" src="gui/wrapper.png" alt="">
+<img id="playertab"  style="display:none; visibility:hidden;" src="gui/playertab.png" alt="">
+<img id="arrows"  style="display:none; visibility:hidden;" src="gui/arrows.png" alt="">
+<img id="arrowstop"  style="display:none; visibility:hidden;" src="gui/arrowstop.png" alt="">
+<img id="arrowsbottom"  style="display:none; visibility:hidden;" src="gui/arrowsbottom.png" alt="">
+
+<img id="sky"  style="display:none; visibility:hidden;" src="gui/sky.png" alt="">
+<img id="cross"  style="display:none; visibility:hidden;" src="gui/cross.png" alt="">
+<img id="info"  style="display:none; visibility:hidden;" src="gui/info.png" alt="">
+<img id="out"  style="display:none; visibility:hidden;" src="gui/out.png" alt="">
+
+<img id="page1"  style="display:none; visibility:hidden;" src="pages/page1.png" alt="">
+<img id="page2"  style="display:none; visibility:hidden;" src="pages/page2.png" alt="">
+<img id="page3"  style="display:none; visibility:hidden;" src="pages/page3.png" alt="">
+<img id="page4"  style="display:none; visibility:hidden;" src="pages/page4.png" alt="">
+<img id="page5"  style="display:none; visibility:hidden;" src="pages/page5.png" alt="">
+<img id="page6"  style="display:none; visibility:hidden;" src="pages/page6.png" alt="">
+
+
+</html> 
+
+
